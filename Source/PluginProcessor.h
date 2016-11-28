@@ -13,6 +13,10 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+#include "peakEQ.h"
+
+
+
 
 //==============================================================================
 /**
@@ -33,6 +37,9 @@ public:
    #endif
 
     void processBlock (AudioSampleBuffer&, MidiBuffer&) override;
+
+	//Create fifo instance
+	void pushBufferIntoFifo(float* newBuff, int buffLength) noexcept;
 
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
@@ -56,9 +63,49 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+
+
+
+	enum
+	{
+		fftOrder = 12,
+		fftSize = 4096
+	};
+
+	// make these public so I can use them in PluginEditor
+
+
+	//const int fftOrder = 12;
+	//const int fftSize = 4096;
+
+	float fftFreqData [2 * fftSize];
+	const int fftNyquist;
+
+
+	// Make array of 5 EQs
+	//peakEQ EQs;
+	//MapUI EQcontrols;
+	 
+
 private:
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FeedbackCutAudioProcessor)
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(FeedbackCutAudioProcessor)
+
+	//Create fft object for feedback analysis as well as visualization
+	FFT fftInputAudio;
+
+	
+	//float fifoTemp[fftSize];
+	float fftTimeData [fftSize];
+
+	//int fifoIndex;
+
+	//bool nextFFTBlockReady;
+	//int fftFillCounter;
+	//int numBufInFFT;
+
+
+
 };
 
 

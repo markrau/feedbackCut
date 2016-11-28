@@ -12,8 +12,14 @@
 #include "PluginEditor.h"
 
 
+
 //==============================================================================
-FeedbackCutAudioProcessor::FeedbackCutAudioProcessor()
+FeedbackCutAudioProcessor::FeedbackCutAudioProcessor(): 
+
+fftInputAudio(fftOrder, false),
+fftNyquist(fftSize / 2)
+//EQs()
+
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -25,6 +31,13 @@ FeedbackCutAudioProcessor::FeedbackCutAudioProcessor()
                        )
 #endif
 {
+	//for (int i = 0; i < sizeof(EQs); i++)
+	//{
+	//	EQs[i] = new peakEQ;
+	//}
+	//EQs = new peakEQ[5];
+	//extern MapUI* EQcontrols;
+
 }
 
 FeedbackCutAudioProcessor::~FeedbackCutAudioProcessor()
@@ -89,6 +102,27 @@ void FeedbackCutAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+
+	////initialize reverb
+	//for (int i = 0; i < sizeof(EQs); i++)
+	//{
+	//	EQs[i].init(sampleRate);
+	//	EQs[i].buildUserInterface(&EQcontrols[i]);
+
+
+
+	//	// setting default values for the Faust module parameters
+	//	EQcontrols[i].setParamValue("/PeakEqualizer/level", 0);
+	//	EQcontrols[i].setParamValue("/PeakEqualizer/freq", 1000);
+	//	EQcontrols[i].setParamValue("/PeakEqualizer/Q", 100);
+
+	//}
+
+	// Print the list of parameters address of "saw"
+	// To get the current (default) value of these parameters, sawControl.getParamValue("paramPath") can be used
+	//for (int i = 0; i<EQcontrols[1].getParamsCount(); i++) {
+	//	std::cout << EQcontrols[1].getParamAdress(i) << "\n";
+	//}
 }
 
 void FeedbackCutAudioProcessor::releaseResources()
@@ -140,10 +174,47 @@ void FeedbackCutAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         float* channelData = buffer.getWritePointer (channel);
+		float* tempBuff;
 
         // ..do something to the data...
+		for (int i = 0; i < buffer.getNumSamples(); ++i) {
+			//tempBuff[i] = buffer[i];
+		}
+			pushBufferIntoFifo(channelData, buffer.getNumSamples());
+			//pushNextSampleIntoFifo(channelData[i]);
+			//fftData[i+fftFillCounter*buffer.getNumSamples()] = buffer.getSample(channel,i);
+
+		//buffer.
     }
+
+
+
+	// render the FFT data..
+	fftInputAudio.performFrequencyOnlyForwardTransform(fftFreqData);
+	
+
 }
+
+void FeedbackCutAudioProcessor::pushBufferIntoFifo(float* newBuff, int buffLength) noexcept
+{
+	for (int i = buffLength;i< fftSize; i++) {
+		fftTimeData[i - buffLength] = fftTimeData[i];
+	}
+	for (int j = 0;j< buffLength; j++) {
+		fftTimeData[fftSize - buffLength + j] = newBuff[j];
+	}
+	memcpy(fftFreqData, fftTimeData, sizeof(fftTimeData));
+
+}
+
+
+
+/*void checkFB()
+{
+	if (fftFillCounter == numBufInFFT) {
+
+	}
+}*/
 
 //==============================================================================
 bool FeedbackCutAudioProcessor::hasEditor() const
@@ -153,7 +224,7 @@ bool FeedbackCutAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* FeedbackCutAudioProcessor::createEditor()
 {
-    return new FeedbackCutAudioProcessorEditor (*this);
+	   return new FeedbackCutAudioProcessorEditor (*this);
 }
 
 //==============================================================================
@@ -169,6 +240,8 @@ void FeedbackCutAudioProcessor::setStateInformation (const void* data, int sizeI
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
+
+
 
 //==============================================================================
 // This creates new instances of the plugin..

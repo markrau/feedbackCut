@@ -32,8 +32,8 @@ FeedbackCutAudioProcessorEditor::FeedbackCutAudioProcessorEditor (FeedbackCutAud
 
 	//add sliders to editor
 	filterSpeedSlider.setRange(0.0, 100.0);
-	filterSeveritySlider.setRange(0.0, 100.0);
-	filterQSlider.setRange(0.0, 100.0);
+	filterSeveritySlider.setRange(-50.0, 0.0);
+	filterQSlider.setRange(0.01, 50.0);
 
 	filterSpeedSlider.addListener(this);
 	filterSeveritySlider.addListener(this);
@@ -102,9 +102,10 @@ void FeedbackCutAudioProcessorEditor::timerCallback()
 
 	spectroscope.clear();
 	for (int i = 0; i<processor.fftNyquist; i++) {
-		const int fftDataIndex = (int)i*maxFreqRatio;
+		//const int fftDataIndex = (int)i*maxFreqRatio;
+		const int fftDataIndex = (int)i;
 		const int x = (int)i*w / (processor.fftNyquist);
-		spectroscope.lineTo(x, (h / 2) + 20*log10(processor.fftFreqData[fftDataIndex] * 4)); // creating the path of the FFT block
+		spectroscope.lineTo(x, (3*h / 4) + 2*20*log10(abs(processor.fftFreqData[fftDataIndex]))); // creating the path of the FFT block
 	}
 		repaint();
 	//}
@@ -145,14 +146,28 @@ void FeedbackCutAudioProcessorEditor::sliderValueChanged(Slider* slider)
 	if (&filterSpeedSlider == slider) {
 		filterSpeedSliderLabel.setText(String(filterSpeedSlider.getValue()),
 			sendNotification);
+
+		//for (int i = 0; i < sizeof(processor.EQs); i++) {
+		//	processor.EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Q_-_Filter_Bandwidth", 180);
+		//}
+
 	}
 	if (&filterSeveritySlider == slider) {
 		filterSeveritySliderLabel.setText(String(filterSeveritySlider.getValue()),
 			sendNotification);
+
+		for (int i = 0; i < sizeof(processor.EQs); i++) {
+			processor.EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Level", filterSeveritySlider.getValue());
+		}
+
 	}
 	if (&filterQSlider == slider) {
 		filterQSliderLabel.setText(String(filterQSlider.getValue()),
 			sendNotification);
+		for (int i = 0; i < sizeof(processor.EQs); i++) {
+			processor.EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Q_-_Filter_Bandwidth", filterQSlider.getValue());
+		}
+
 	}
 }
 void FeedbackCutAudioProcessorEditor::labelTextChanged(Label* label)

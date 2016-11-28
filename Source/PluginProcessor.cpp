@@ -33,7 +33,8 @@ fftNyquist(fftSize / 2)
 {
 	//for (int i = 0; i < sizeof(EQs); i++)
 	//{
-	//	EQs[i] = new peakEQ;
+		EQs = new peakEQ[5];
+		EQcontrols = new MapUI[5];
 	//}
 	//EQs = new peakEQ[5];
 	//extern MapUI* EQcontrols;
@@ -100,26 +101,28 @@ void FeedbackCutAudioProcessor::changeProgramName (int index, const String& newN
 //==============================================================================
 void FeedbackCutAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+
+	//EQs[1].init(sampleRate);
+	//EQs[1].buildUserInterface(&EQcontrols[1]);
+
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 
 	////initialize reverb
-	//for (int i = 0; i < sizeof(EQs); i++)
-	//{
-	//	EQs[i].init(sampleRate);
-	//	EQs[i].buildUserInterface(&EQcontrols[i]);
+	for (int i = 0; i < sizeof(EQs); i++)
+	{
+		EQs[i].init(sampleRate);
+		EQs[i].buildUserInterface(&EQcontrols[i]);
 
+		// setting default values for the Faust module parameters
+		EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Level", 0 );
+		EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Peak_Frequency", 2000);
+		EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Q_-_Filter_Bandwidth", 1);
 
-
-	//	// setting default values for the Faust module parameters
-	//	EQcontrols[i].setParamValue("/PeakEqualizer/level", 0);
-	//	EQcontrols[i].setParamValue("/PeakEqualizer/freq", 1000);
-	//	EQcontrols[i].setParamValue("/PeakEqualizer/Q", 100);
-
-	//}
+	}
 
 	// Print the list of parameters address of "saw"
-	// To get the current (default) value of these parameters, sawControl.getParamValue("paramPath") can be used
+	 //To get the current (default) value of these parameters, sawControl.getParamValue("paramPath") can be used
 	//for (int i = 0; i<EQcontrols[1].getParamsCount(); i++) {
 	//	std::cout << EQcontrols[1].getParamAdress(i) << "\n";
 	//}
@@ -174,17 +177,23 @@ void FeedbackCutAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         float* channelData = buffer.getWritePointer (channel);
-		float* tempBuff;
+		//float* tempBuff;
+		memcpy(previousFftFreqData, fftFreqData, sizeof(previousFftFreqData));
 
         // ..do something to the data...
 		for (int i = 0; i < buffer.getNumSamples(); ++i) {
 			//tempBuff[i] = buffer[i];
 		}
-			pushBufferIntoFifo(channelData, buffer.getNumSamples());
-			//pushNextSampleIntoFifo(channelData[i]);
-			//fftData[i+fftFillCounter*buffer.getNumSamples()] = buffer.getSample(channel,i);
 
-		//buffer.
+		EQs[1].compute(buffer.getNumSamples(), buffer.getArrayOfWritePointers(), buffer.getArrayOfWritePointers());
+		EQs[2].compute(buffer.getNumSamples(), buffer.getArrayOfWritePointers(), buffer.getArrayOfWritePointers());
+
+		pushBufferIntoFifo(channelData, buffer.getNumSamples());
+		//pushNextSampleIntoFifo(channelData[i]);
+		//fftData[i+fftFillCounter*buffer.getNumSamples()] = buffer.getSample(channel,i);
+
+		//Do audio processing here
+
     }
 
 

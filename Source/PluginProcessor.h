@@ -79,12 +79,13 @@ public:
 	//const int fftSize = 4096;
 
 	float fftFreqData [2 * fftSize];
+	float previousFftFreqData[2 * fftSize];
 	const int fftNyquist;
 
 
 	// Make array of 5 EQs
-	//peakEQ EQs;
-	//MapUI EQcontrols;
+	peakEQ* EQs;
+	MapUI* EQcontrols;
 	 
 
 private:

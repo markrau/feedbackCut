@@ -157,9 +157,8 @@ inline const char* lopts(char* argv[], const char* name, const char* def)
 #ifndef FAUST_MAPUI_H
 #define FAUST_MAPUI_H
 
-#ifndef FAUSTFLOAT
+
 #define FAUSTFLOAT float
-#endif
 
 #include <vector>
 #include <map>
@@ -668,16 +667,12 @@ Code generated with Faust 2.0.a53 (http://faust.grame.fr)
 #ifndef  __peakEQ_H__
 #define  __peakEQ_H__
 
-#ifndef FAUSTFLOAT
+
 #define FAUSTFLOAT float
-#endif  
 
 #include <math.h>
 
-float faustpower2_f(float value) {
-	return (value * value);
-	
-}
+
 
 #ifndef FAUSTCLASS 
 #define FAUSTCLASS peakEQ
@@ -701,6 +696,10 @@ class peakEQ : public dsp {
 	float fConst4;
 	
  public:
+	 float faustpower2_f(float value) {
+		 return (value * value);
+
+	 }
 	
 	void metadata(Meta* m) { 
 		m->declare("basic.lib/name", "Faust Basic Element Library");

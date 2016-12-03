@@ -13,11 +13,13 @@
 
 
 
+
 //==============================================================================
 FeedbackCutAudioProcessor::FeedbackCutAudioProcessor(): 
 
 fftInputAudio(fftOrder, false),
-fftNyquist(fftSize / 2)
+fftNyquist(fftSize / 2),
+cs()
 //EQs()
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -108,16 +110,34 @@ void FeedbackCutAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 
-	////initialize reverb
+	// set size of peakLocations vector
+	peakLocations.resize(10);
+	// initialize threshold
+	energyThreshold = 0.001;
+	maxPeakFrequency = 1000;
+	maxFilterReduction = -20.0;
+	maxFilterBuffCount = (int) (0.5*((float)sampleRate / (float)samplesPerBlock));
+	filterBuffCount = 0;
+	takingFFT = false;
+	bypassTrue = false;
+
+	//for (int j = 0; j < sizeof(fftFreqData); j++) {
+	//	fftFreqData[j] = 0;
+	//}
+
+
+
+
+	////initialize faust filters
 	for (int i = 0; i < sizeof(EQs); i++)
 	{
 		EQs[i].init(sampleRate);
 		EQs[i].buildUserInterface(&EQcontrols[i]);
 
 		// setting default values for the Faust module parameters
-		EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Level", 0 );
-		EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Peak_Frequency", 2000);
-		EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Q_-_Filter_Bandwidth", 1);
+		EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Level", -20 );
+		EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Peak_Frequency", 1000);
+		EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Q_-_Filter_Bandwidth", 20);
 
 	}
 
@@ -178,17 +198,50 @@ void FeedbackCutAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
     {
         float* channelData = buffer.getWritePointer (channel);
 		//float* tempBuff;
-		memcpy(previousFftFreqData, fftFreqData, sizeof(previousFftFreqData));
+		//memcpy(previousFftFreqData, fftFreqData, sizeof(previousFftFreqData));
 
         // ..do something to the data...
 		for (int i = 0; i < buffer.getNumSamples(); ++i) {
 			//tempBuff[i] = buffer[i];
 		}
+//		originalGain = buffer.getRMSLevel(channel, 0, buffer.getNumSamples());
+		
 
-		EQs[1].compute(buffer.getNumSamples(), buffer.getArrayOfWritePointers(), buffer.getArrayOfWritePointers());
-		EQs[2].compute(buffer.getNumSamples(), buffer.getArrayOfWritePointers(), buffer.getArrayOfWritePointers());
+
+		if (bypassTrue == false) {
+
+			if (check(peakLocations, peakLocations.size()) && E_p / P_x > energyThreshold && maxPeakLocation > 5) {
+				if (filterBuffCount == 0) {
+					oldPeakFrequencies[1] = maxPeakFrequency;
+				}
+
+
+				if (filterBuffCount < maxFilterBuffCount) {
+					filterBuffCount++;
+					EQcontrols[1].setParamValue("/PeakEqualizer/Peak_EQ/Level", maxFilterReduction*((float)filterBuffCount) / ((float)maxFilterBuffCount));
+					EQcontrols[1].setParamValue("/PeakEqualizer/Peak_EQ/Peak_Frequency", oldPeakFrequencies[1]);
+					EQs[1].compute(buffer.getNumSamples(), buffer.getArrayOfWritePointers(), buffer.getArrayOfWritePointers());
+
+				}
+				else {
+					EQs[1].compute(buffer.getNumSamples(), buffer.getArrayOfWritePointers(), buffer.getArrayOfWritePointers());
+				}
+
+			}
+			else if (filterBuffCount > 0) {
+				filterBuffCount--;
+				EQcontrols[1].setParamValue("/PeakEqualizer/Peak_EQ/Level", maxFilterReduction*((float)filterBuffCount) / ((float)maxFilterBuffCount));
+				EQcontrols[1].setParamValue("/PeakEqualizer/Peak_EQ/Peak_Frequency", oldPeakFrequencies[1]);
+				EQs[1].compute(buffer.getNumSamples(), buffer.getArrayOfWritePointers(), buffer.getArrayOfWritePointers());
+			}
+
+		}
+
+//		gainAfterProcess = buffer.getRMSLevel(channel, 0, buffer.getNumSamples());
+//		magnitude = buffer.getMagnitude(channel, 0, buffer.getNumSamples());
 
 		pushBufferIntoFifo(channelData, buffer.getNumSamples());
+		
 		//pushNextSampleIntoFifo(channelData[i]);
 		//fftData[i+fftFillCounter*buffer.getNumSamples()] = buffer.getSample(channel,i);
 
@@ -199,7 +252,41 @@ void FeedbackCutAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
 
 	// render the FFT data..
-	fftInputAudio.performFrequencyOnlyForwardTransform(fftFreqData);
+	//takingFFT = true;
+
+	// try to put this in the critical section part
+	//cs.enter();
+	//fftInputAudio.performFrequencyOnlyForwardTransform(fftFreqData);
+	//cs.exit();
+	//takingFFT = false;
+
+	protectSection();
+	
+	//Do processing to check for feedback
+	maxPeakLocation = std::distance(fftFreqData, std::max_element(fftFreqData, fftFreqData + fftNyquist));
+	maxPeakFrequency = maxPeakLocation*getSampleRate() / (2*fftNyquist);
+
+	//if (peakLocations.size() < 10) {
+	//	peakLocations.push(maxPeakLocation);
+	//}
+	//else {
+	//	peakLocations.pop();
+	//	peakLocations.push(maxPeakLocation);
+	//}
+	peakLocations.erase(peakLocations.begin());
+	peakLocations.push_back(maxPeakLocation);
+
+
+	P_x = 0.0;
+	for (int i = 0; i < fftSize / 2; i++) {
+		P_x = P_x + pow(fftFreqData[i], 2);
+	}
+	E_p = 0.0;
+	if (maxPeakLocation > 5) {
+		for (int i = maxPeakLocation - 2; i < maxPeakLocation + 2; i++) {
+			E_p = E_p + pow(fftFreqData[i], 2);
+		}
+	}
 	
 
 }
@@ -214,6 +301,22 @@ void FeedbackCutAudioProcessor::pushBufferIntoFifo(float* newBuff, int buffLengt
 	}
 	memcpy(fftFreqData, fftTimeData, sizeof(fftTimeData));
 
+}
+
+void FeedbackCutAudioProcessor::protectSection()
+{
+	const ScopedLock lock(cs);
+	fftInputAudio.performFrequencyOnlyForwardTransform(fftFreqData);
+}
+
+bool FeedbackCutAudioProcessor::check(std::vector<int> peakLocations, int n)
+{
+	for (int i = 0; i < n - 1; i++)
+	{
+		if (peakLocations[i] != peakLocations[i + 1])
+			return false;
+	}
+	return true;
 }
 
 

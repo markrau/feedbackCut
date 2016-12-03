@@ -48,12 +48,18 @@ private:
 	Slider filterSpeedSlider;
 	Slider filterSeveritySlider;
 	Slider filterQSlider;
+	Slider feedbackThreshold;
 
 	Label filterSpeedSliderLabel;
 	Label filterSeveritySliderLabel;
 	Label filterQSliderLabel;
+	Label feedbackThresholdLabel;
+
+	ToggleButton bypass;
+	ShapeButton filterKeep1;
 
 	Path spectroscope;
+
 
 
 

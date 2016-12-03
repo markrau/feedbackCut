@@ -14,6 +14,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 #include "peakEQ.h"
+#include <queue>
+#include <algorithm>
 
 
 
@@ -63,6 +65,13 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+	//function to check if values in array are the same
+	bool check(std::vector<int> peakLocations, int n);
+
+	//Try to make method for critical section
+	void protectSection();
+
+
 
 
 
@@ -83,10 +92,19 @@ public:
 	const int fftNyquist;
 
 
+
+
 	// Make array of 5 EQs
 	peakEQ* EQs;
 	MapUI* EQcontrols;
-	 
+	float energyThreshold;
+	float maxPeakFrequency;
+	int maxFilterBuffCount;
+	float maxFilterReduction;
+	float oldPeakFrequencies[5];
+	bool takingFFT;
+	bool bypassTrue;
+
 
 private:
     //==============================================================================
@@ -94,6 +112,8 @@ private:
 
 	//Create fft object for feedback analysis as well as visualization
 	FFT fftInputAudio;
+
+	CriticalSection cs;
 
 	
 	//float fifoTemp[fftSize];
@@ -104,6 +124,20 @@ private:
 	//bool nextFFTBlockReady;
 	//int fftFillCounter;
 	//int numBufInFFT;
+
+	// variables for feedback prediction
+	float E_p;
+	float P_x;
+	
+	//int peakLocations[10];
+	std::vector<int> peakLocations;
+	int maxPeakLocation;
+
+	// gain of signal
+	float originalGain;
+	float gainAfterProcess;
+	float magnitude;
+	int filterBuffCount;
 
 
 

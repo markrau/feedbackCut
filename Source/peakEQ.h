@@ -817,7 +817,7 @@ class peakEQ : public dsp {
 		ui_interface->openVerticalBox("Peak EQ");
 		ui_interface->declare(&fHslider2, "acc", "2 0 -10 0 10");
 		ui_interface->declare(&fHslider2, "unit", "Hz");
-		ui_interface->addHorizontalSlider("Q - Filter Bandwidth", &fHslider2, 50.0f, 20.0f, 200.0f, 1.0f);
+		ui_interface->addHorizontalSlider("Q - Filter Bandwidth", &fHslider2, 50.0f, 1.0f, 200.0f, 1.0f);
 		ui_interface->declare(&fHslider0, "1", "");
 		ui_interface->declare(&fHslider0, "acc", "0 1 -10 0 10");
 		ui_interface->declare(&fHslider0, "scale", "log");
@@ -846,7 +846,7 @@ class peakEQ : public dsp {
 			float fTemp0 = tanf((fConst1 * fRec1[0]));
 			float fTemp1 = (1.0f / fTemp0);
 			fRec2[0] = (fSlow4 + (0.999000013f * fRec2[1]));
-			float fTemp2 = (max(20.0f, min(200.0f, fRec2[0])) / sinf((fConst4 * fRec1[0])));
+			float fTemp2 = (max(1.0f, min(200.0f, fRec2[0])) / sinf((fConst4 * fRec1[0])));
 			float fTemp3 = (fSlow3 * fTemp2);
 			float fTemp4 = (fConst3 * fTemp2);
 			float fTemp5 = (iSlow2?fTemp4:fTemp3);

@@ -201,9 +201,9 @@ void FeedbackCutAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 		//memcpy(previousFftFreqData, fftFreqData, sizeof(previousFftFreqData));
 
         // ..do something to the data...
-		for (int i = 0; i < buffer.getNumSamples(); ++i) {
+		//for (int i = 0; i < buffer.getNumSamples(); ++i) {
 			//tempBuff[i] = buffer[i];
-		}
+		//}
 //		originalGain = buffer.getRMSLevel(channel, 0, buffer.getNumSamples());
 		
 
@@ -240,8 +240,8 @@ void FeedbackCutAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 //		gainAfterProcess = buffer.getRMSLevel(channel, 0, buffer.getNumSamples());
 //		magnitude = buffer.getMagnitude(channel, 0, buffer.getNumSamples());
 
-		pushBufferIntoFifo(channelData, buffer.getNumSamples());
 		
+		protectSection(channelData,buffer);
 		//pushNextSampleIntoFifo(channelData[i]);
 		//fftData[i+fftFillCounter*buffer.getNumSamples()] = buffer.getSample(channel,i);
 
@@ -260,7 +260,7 @@ void FeedbackCutAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 	//cs.exit();
 	//takingFFT = false;
 
-	protectSection();
+	
 	
 	//Do processing to check for feedback
 	maxPeakLocation = std::distance(fftFreqData, std::max_element(fftFreqData, fftFreqData + fftNyquist));
@@ -303,9 +303,11 @@ void FeedbackCutAudioProcessor::pushBufferIntoFifo(float* newBuff, int buffLengt
 
 }
 
-void FeedbackCutAudioProcessor::protectSection()
+void FeedbackCutAudioProcessor::protectSection(float* channelData, AudioSampleBuffer& buffer)
 {
+	
 	const ScopedLock lock(cs);
+	pushBufferIntoFifo(channelData, buffer.getNumSamples());
 	fftInputAudio.performFrequencyOnlyForwardTransform(fftFreqData);
 }
 

@@ -69,7 +69,7 @@ public:
 	bool check(std::vector<int> peakLocations, int n);
 
 	//Try to make method for critical section
-	void protectSection();
+	void protectSection(float* channelData, AudioSampleBuffer& buffer);
 
 
 

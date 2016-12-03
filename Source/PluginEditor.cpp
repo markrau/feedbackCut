@@ -207,15 +207,16 @@ void FeedbackCutAudioProcessorEditor::timerCallback()
 	}
 
 		spectroscope.clear();
-		spectroscope.startNewSubPath(0.89*log10((float)minIndex)*w / (log10((float)maxIndex)) + 0.055*w-offset, (3 * h / 4) + 20 * log10(abs(processor.fftFreqData[minIndex])));
 
+		spectroscope.startNewSubPath(0.89*log10((float)minIndex)*w / (log10((float)maxIndex)) + 0.055*w - offset, (3 * h / 4) + 20 * log10(abs(processor.fftFreqData[minIndex] )));
+		
 	
 		int numPaths = 400;
-		for (int i = minIndex; i < numPaths; i++) {
+		for (int i = minIndex+1; i < numPaths; i++) {
 			//const int fftDataIndex = (int)i*maxFreqRatio;
 			const int fftDataIndex = (int)(pow(10,(float)i*((float)log10((float)maxIndex)/numPaths)));
 			const float x = 0.89*log10((float)fftDataIndex)*w / (log10((float)maxIndex));
-			spectroscope.lineTo(x+0.055*w, (3 * h / 4) + 20 * log10(abs(processor.fftFreqData[fftDataIndex]))); // creating the path of the FFT block
+			spectroscope.lineTo(x + 0.055*w, (3 * h / 4) + 20 * log10(abs(processor.fftFreqData[fftDataIndex])));
 		}
 		repaint();
 	//}

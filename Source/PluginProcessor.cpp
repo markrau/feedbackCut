@@ -305,7 +305,6 @@ void FeedbackCutAudioProcessor::pushBufferIntoFifo(float* newBuff, int buffLengt
 
 void FeedbackCutAudioProcessor::protectSection(float* channelData, AudioSampleBuffer& buffer)
 {
-	
 	const ScopedLock lock(cs);
 	pushBufferIntoFifo(channelData, buffer.getNumSamples());
 	fftInputAudio.performFrequencyOnlyForwardTransform(fftFreqData);

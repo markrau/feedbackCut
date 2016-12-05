@@ -42,7 +42,7 @@ private:
     FeedbackCutAudioProcessor& processor;
 
 	//Testing some stuff
-	TextButton button1; // Step [1]
+	//TextButton button1; // Step [1]
 
 	// Create slider objects
 	Slider filterSpeedSlider;
@@ -59,6 +59,7 @@ private:
 	ShapeButton filterKeep1;
 
 	Path spectroscope;
+
 
 
 

@@ -21,43 +21,40 @@ FeedbackCutAudioProcessorEditor::FeedbackCutAudioProcessorEditor (FeedbackCutAud
 	filterSeveritySlider(Slider::Rotary, Slider::NoTextBox),
 	filterQSlider(Slider::Rotary, Slider::NoTextBox),
 	feedbackThreshold(Slider::Rotary, Slider::NoTextBox),
-	bypass("Bypass"),
+	bypass(),
 	filterKeep1("*",Colours::red, Colours::pink,Colours::green)
-	//Timer
 
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
 
-
+	// This is for when I extend to multiple feedbacks
 	//filterKeep1.setShape();
+	//addAndMakeVisible(&filterKeep1);
 
-	//add buttons
+	//add bypass button
 	addAndMakeVisible(&bypass); 
-	addAndMakeVisible(&filterKeep1);
-
-	setResizable(true, true);
-
 	
+	setResizable(true, true);
 
 
 	//add sliders to editor
 	filterSpeedSlider.setRange(0.01, 1.0);
 	filterSpeedSlider.setValue(0.5);
-	filterSpeedSlider.setColour(0x1001311, Colours::darkmagenta);
-	filterSpeedSlider.setColour(0x1001312, Colours::darkmagenta);
+	filterSpeedSlider.setColour(0x1001311, Colour::Colour(48, 0, 9));
+	filterSpeedSlider.setColour(0x1001312, Colour::Colour(48, 0, 9));
 	filterSeveritySlider.setRange(-40, 0.0);
 	filterSeveritySlider.setValue(-20);
-	filterSeveritySlider.setColour(0x1001311, Colours::darkmagenta);
-	filterSeveritySlider.setColour(0x1001312, Colours::darkmagenta);
+	filterSeveritySlider.setColour(0x1001311, Colour::Colour(48, 0, 9));
+	filterSeveritySlider.setColour(0x1001312, Colour::Colour(48, 0, 9));
 	filterQSlider.setRange(0.01, 50.0);
 	filterQSlider.setValue(20);
-	filterQSlider.setColour(0x1001311, Colours::darkmagenta);
-	filterQSlider.setColour(0x1001312, Colours::darkmagenta);
+	filterQSlider.setColour(0x1001311, Colour::Colour(48, 0, 9));
+	filterQSlider.setColour(0x1001312, Colour::Colour(48, 0, 9));
 	feedbackThreshold.setRange(0.0, 1.0);
 	feedbackThreshold.setValue(0.5);
-	feedbackThreshold.setColour(0x1001311, Colours::darkmagenta);
-	feedbackThreshold.setColour(0x1001312, Colours::darkmagenta);
+	feedbackThreshold.setColour(0x1001311, Colour::Colour(48, 0, 9));
+	feedbackThreshold.setColour(0x1001312, Colour::Colour(48, 0, 9));
 	
 	
 
@@ -65,7 +62,7 @@ FeedbackCutAudioProcessorEditor::FeedbackCutAudioProcessorEditor (FeedbackCutAud
 	filterSeveritySlider.addListener(this);
 	filterQSlider.addListener(this);
 	feedbackThreshold.addListener(this);
-	//button1.addListener(this);
+
 
 
 	// Add listeners
@@ -85,14 +82,12 @@ FeedbackCutAudioProcessorEditor::FeedbackCutAudioProcessorEditor (FeedbackCutAud
 	addAndMakeVisible(&filterQSliderLabel);
 	addAndMakeVisible(&feedbackThresholdLabel);
 
-	//filterSpeedSlider.setTextBoxStyle();
-
 
 	//Timer refresh rate for spectrogram
 	startTimerHz(60);
 
     setSize (800, 600);
-	
+
 }
 
 FeedbackCutAudioProcessorEditor::~FeedbackCutAudioProcessorEditor()
@@ -102,28 +97,41 @@ FeedbackCutAudioProcessorEditor::~FeedbackCutAudioProcessorEditor()
 //==============================================================================
 void FeedbackCutAudioProcessorEditor::paint(Graphics& g)
 {
-	g.fillAll(Colour::Colour(107,4,0));
-
-	/*g.setColour (Colours::black);
-	g.setFont (15.0f);
-	g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);*/
-
 	const float w = (float)getWidth();
 	const float h = (float)getHeight();
 
+	g.setGradientFill(ColourGradient(Colours::darkblue,
+		0.0f, 0.0f,
+		Colours::darkslateblue,
+		w, h,
+		false));
+
+	g.fillAll();
+	g.setFont(Font("Tekton Pro", 88.00f, Font::plain));
 
 
-	g.setColour(Colours::black);
-	g.setFont(h / 14);
+
+
+
+
+	if (processor.filterBuffCount > 0) {
+		g.setColour(Colours::darkred);
+	}
+	else {
+		g.setColour(Colours::black);
+	}
+
+
+	g.setFont(h / 12);
 	g.drawFittedText("FeedBackCut", (int)(0.015*w), (int)(0.015*h), (int)(0.4*w), (int)(0.1*h), Justification::topLeft, 1);
 
 	g.setColour(Colours::black);
-	g.setFont(15.0f);
+	g.setFont(18.0f);
 	g.drawFittedText("Filter Speed (s)", (int)(0.025*w), (int)(0.9*h), (int)(0.2*w), (int)(0.1*h), Justification::centred, 2);
 	g.drawFittedText("Feedback Reduction (dB)", (int)(0.275*w), (int)(0.9*h), (int)(0.2*w), (int)(0.1*h), Justification::centred, 2);
 	g.drawFittedText("Bandwidth (Hz)", (int)(0.525*w), (int)(0.9*h), (int)(0.2*w), (int)(0.1*h), Justification::centred, 2);
 	g.drawFittedText("Feedback Threshold", (int)(0.775*w), (int)(0.9*h), (int)(0.2*w), (int)(0.1*h), Justification::centred, 2);
-
+	g.drawFittedText("Bypass", (int)(0.88*w), (int)(0.05*h), (int)(0.1*w), (int)(0.02*h), Justification::centred, 2);
 	
 
 
@@ -178,7 +186,7 @@ void FeedbackCutAudioProcessorEditor::paint(Graphics& g)
 
 	// drawing spectroscope
 	PathStrokeType stroke(1.0f);
-	g.setColour(Colours::lightgoldenrodyellow);
+	g.setColour(Colour::Colour(48,0,9));
 	if (!processor.takingFFT) {
 		g.strokePath(spectroscope,	stroke, AffineTransform::verticalFlip(getHeight()));
 	}
@@ -208,7 +216,11 @@ void FeedbackCutAudioProcessorEditor::timerCallback()
 
 		spectroscope.clear();
 
-		spectroscope.startNewSubPath(0.89*log10((float)minIndex)*w / (log10((float)maxIndex)) + 0.055*w - offset, (3 * h / 4) + 20 * log10(abs(processor.fftFreqData[minIndex] )));
+		float yVal = log10(abs(processor.fftFreqData[minIndex]));
+		if (yVal < -3.0f) {
+			yVal = -3.0f;
+		}
+		spectroscope.startNewSubPath(0.89*log10((float)minIndex)*w / (log10((float)maxIndex)) + 0.055*w - offset, h*(0.69 + 0.1*yVal));
 		
 	
 		int numPaths = 400;
@@ -216,12 +228,16 @@ void FeedbackCutAudioProcessorEditor::timerCallback()
 			//const int fftDataIndex = (int)i*maxFreqRatio;
 			const int fftDataIndex = (int)(pow(10,(float)i*((float)log10((float)maxIndex)/numPaths)));
 			const float x = 0.89*log10((float)fftDataIndex)*w / (log10((float)maxIndex));
-			spectroscope.lineTo(x + 0.055*w, (3 * h / 4) + 20 * log10(abs(processor.fftFreqData[fftDataIndex])));
+			yVal = log10(abs(processor.fftFreqData[fftDataIndex]));
+			if (yVal < -3.0f) {
+				yVal = -3.0f;
+			}
+
+
+			spectroscope.lineTo(x + 0.055*w, h*(0.69 + 0.1*yVal));
 		}
 		repaint();
-	//}
-		
-	//}
+
 }
 
 void FeedbackCutAudioProcessorEditor::resized()
@@ -229,28 +245,36 @@ void FeedbackCutAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 
-	//testing stuff
-	//button1.setBounds(10, 10, getWidth() - 20, getHeight() - 20);
+
 
 	filterSpeedSliderLabel.setEditable(true);
 	filterSeveritySliderLabel.setEditable(true);
 	filterQSliderLabel.setEditable(true);
 	feedbackThresholdLabel.setEditable(true);
 
+	filterSpeedSliderLabel.setFont(Font("Tekton Pro", 17.0f, Font::plain));
+	filterSeveritySliderLabel.setFont(Font("Tekton Pro", 17.0f, Font::plain));
+	filterQSliderLabel.setFont(Font("Tekton Pro", 17.0f, Font::plain));
+	feedbackThresholdLabel.setFont(Font("Tekton Pro", 17.0f, Font::plain));
 
 
 
-	filterSpeedSlider.setBoundsRelative(0.025, 0.7, 0.2, 0.2);
-	filterSeveritySlider.setBoundsRelative(0.275, 0.7, 0.2, 0.2);
-	filterQSlider.setBoundsRelative(0.525, 0.7, 0.2, 0.2);
-	feedbackThreshold.setBoundsRelative(0.775, 0.7, 0.2, 0.2);
-	bypass.setBoundsRelative(0.8, 0.015, 0.2, 0.07);
-	bypass.setCentreRelative(0.9,0.05);
 
-	filterSpeedSliderLabel.setBoundsRelative(0.025, 0.62, 0.25, 0.1);
-	filterSeveritySliderLabel.setBoundsRelative(0.275, 0.62, 0.25, 0.1);
-	filterQSliderLabel.setBoundsRelative(0.525, 0.62, 0.25, 0.1);
-	feedbackThresholdLabel.setBoundsRelative(0.775, 0.62, 0.25, 0.1);
+
+
+
+	filterSpeedSlider.setBoundsRelative(0.035, 0.7, 0.18, 0.18);
+	filterSeveritySlider.setBoundsRelative(0.285, 0.7, 0.18, 0.18);
+	filterQSlider.setBoundsRelative(0.535, 0.7, 0.18, 0.18);
+	feedbackThreshold.setBoundsRelative(0.785, 0.7, 0.18, 0.18);
+	bypass.setBoundsRelative(0.87, 0.03, 0.1, 0.05);
+	//bypass.setCentreRelative(0.9,0.05);
+
+
+	filterSpeedSliderLabel.setBoundsRelative(0.072, 0.835, 0.2, 0.1);
+	filterSeveritySliderLabel.setBoundsRelative(0.322, 0.835, 0.2, 0.1);
+	filterQSliderLabel.setBoundsRelative(0.572, 0.835, 0.2, 0.1);
+	feedbackThresholdLabel.setBoundsRelative(0.822, 0.835, 0.2, 0.1);
 }
 
 void FeedbackCutAudioProcessorEditor::buttonClicked(Button* button)

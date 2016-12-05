@@ -67,6 +67,7 @@ public:
 
 	//function to check if values in array are the same
 	bool check(std::vector<int> peakLocations, int n);
+	float findPeakFrequency(float* fftFreqData, int peakLocation, int fs, int N);
 
 	//Try to make method for critical section
 	void protectSection(float* channelData, AudioSampleBuffer& buffer);
@@ -84,9 +85,6 @@ public:
 	// make these public so I can use them in PluginEditor
 
 
-	//const int fftOrder = 12;
-	//const int fftSize = 4096;
-
 	float fftFreqData [2 * fftSize];
 	float previousFftFreqData[2 * fftSize];
 	const int fftNyquist;
@@ -94,12 +92,13 @@ public:
 
 
 
-	// Make array of 5 EQs
+	// Make array of 5 EQs, they are arrays because I plan to be able to detect multiple feedbacks eventually
 	peakEQ* EQs;
 	MapUI* EQcontrols;
 	float energyThreshold;
 	float maxPeakFrequency;
 	int maxFilterBuffCount;
+	int filterBuffCount;
 	float maxFilterReduction;
 	float oldPeakFrequencies[5];
 	bool takingFFT;
@@ -116,14 +115,9 @@ private:
 	CriticalSection cs;
 
 	
-	//float fifoTemp[fftSize];
 	float fftTimeData [fftSize];
+	float fftWindow[fftSize];
 
-	//int fifoIndex;
-
-	//bool nextFFTBlockReady;
-	//int fftFillCounter;
-	//int numBufInFFT;
 
 	// variables for feedback prediction
 	float E_p;
@@ -137,7 +131,7 @@ private:
 	float originalGain;
 	float gainAfterProcess;
 	float magnitude;
-	int filterBuffCount;
+	
 
 
 

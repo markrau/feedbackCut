@@ -10,6 +10,8 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "math.h"
+
 
 
 
@@ -33,18 +35,13 @@ cs()
                        )
 #endif
 {
-	//for (int i = 0; i < sizeof(EQs); i++)
-	//{
 		EQs = new peakEQ[5];
 		EQcontrols = new MapUI[5];
-	//}
-	//EQs = new peakEQ[5];
-	//extern MapUI* EQcontrols;
-
 }
 
 FeedbackCutAudioProcessor::~FeedbackCutAudioProcessor()
 {
+
 }
 
 //==============================================================================
@@ -104,14 +101,20 @@ void FeedbackCutAudioProcessor::changeProgramName (int index, const String& newN
 void FeedbackCutAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
 
-	//EQs[1].init(sampleRate);
-	//EQs[1].buildUserInterface(&EQcontrols[1]);
+	// Use this method as the place to do any pre-playback
+	// initialisation that you need..
 
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
 
-	// set size of peakLocations vector
-	peakLocations.resize(10);
+	// Initialize Hann window
+	int N = fftSize;
+	const float PI = 3.141592653589793238463;
+	for (int i = 0; i < N; i++) {
+		fftWindow[i] =0.5*(1-cos(2*PI*i/(N-1))) ;
+	}
+
+
+	// set size of peakLocations vector to be the number of buffers in 40ms
+	peakLocations.resize(0.04*sampleRate/samplesPerBlock);
 	// initialize threshold
 	energyThreshold = 0.001;
 	maxPeakFrequency = 1000;
@@ -121,14 +124,10 @@ void FeedbackCutAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 	takingFFT = false;
 	bypassTrue = false;
 
-	//for (int j = 0; j < sizeof(fftFreqData); j++) {
-	//	fftFreqData[j] = 0;
-	//}
 
 
 
-
-	////initialize faust filters
+	////initialize faust filters. There are five filters because I plan on extending the plugin to work with multiple feedbacks
 	for (int i = 0; i < sizeof(EQs); i++)
 	{
 		EQs[i].init(sampleRate);
@@ -141,11 +140,6 @@ void FeedbackCutAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 
 	}
 
-	// Print the list of parameters address of "saw"
-	 //To get the current (default) value of these parameters, sawControl.getParamValue("paramPath") can be used
-	//for (int i = 0; i<EQcontrols[1].getParamsCount(); i++) {
-	//	std::cout << EQcontrols[1].getParamAdress(i) << "\n";
-	//}
 }
 
 void FeedbackCutAudioProcessor::releaseResources()
@@ -197,24 +191,16 @@ void FeedbackCutAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         float* channelData = buffer.getWritePointer (channel);
-		//float* tempBuff;
-		//memcpy(previousFftFreqData, fftFreqData, sizeof(previousFftFreqData));
 
-        // ..do something to the data...
-		//for (int i = 0; i < buffer.getNumSamples(); ++i) {
-			//tempBuff[i] = buffer[i];
-		//}
-//		originalGain = buffer.getRMSLevel(channel, 0, buffer.getNumSamples());
 		
-
-
+		// Check to see if there is a feedback peak. If there is, apply a filter which has a gain proportional to the buffer size,
+		//The filter is also slowly backed off if the feedback is no longer detected
 		if (bypassTrue == false) {
 
 			if (check(peakLocations, peakLocations.size()) && E_p / P_x > energyThreshold && maxPeakLocation > 5) {
 				if (filterBuffCount == 0) {
 					oldPeakFrequencies[1] = maxPeakFrequency;
 				}
-
 
 				if (filterBuffCount < maxFilterBuffCount) {
 					filterBuffCount++;
@@ -237,46 +223,22 @@ void FeedbackCutAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
 		}
 
-//		gainAfterProcess = buffer.getRMSLevel(channel, 0, buffer.getNumSamples());
-//		magnitude = buffer.getMagnitude(channel, 0, buffer.getNumSamples());
-
-		
+		//This is the protected fft part
 		protectSection(channelData,buffer);
-		//pushNextSampleIntoFifo(channelData[i]);
-		//fftData[i+fftFillCounter*buffer.getNumSamples()] = buffer.getSample(channel,i);
-
-		//Do audio processing here
 
     }
 
 
-
-	// render the FFT data..
-	//takingFFT = true;
-
-	// try to put this in the critical section part
-	//cs.enter();
-	//fftInputAudio.performFrequencyOnlyForwardTransform(fftFreqData);
-	//cs.exit();
-	//takingFFT = false;
-
-	
-	
 	//Do processing to check for feedback
 	maxPeakLocation = std::distance(fftFreqData, std::max_element(fftFreqData, fftFreqData + fftNyquist));
 	maxPeakFrequency = maxPeakLocation*getSampleRate() / (2*fftNyquist);
+	maxPeakFrequency = findPeakFrequency(fftFreqData, maxPeakLocation, getSampleRate(), 2 * fftNyquist);
 
-	//if (peakLocations.size() < 10) {
-	//	peakLocations.push(maxPeakLocation);
-	//}
-	//else {
-	//	peakLocations.pop();
-	//	peakLocations.push(maxPeakLocation);
-	//}
+	// Push new peaks into the memory
 	peakLocations.erase(peakLocations.begin());
 	peakLocations.push_back(maxPeakLocation);
 
-
+	// Check peak energy ratio
 	P_x = 0.0;
 	for (int i = 0; i < fftSize / 2; i++) {
 		P_x = P_x + pow(fftFreqData[i], 2);
@@ -293,25 +255,45 @@ void FeedbackCutAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuf
 
 void FeedbackCutAudioProcessor::pushBufferIntoFifo(float* newBuff, int buffLength) noexcept
 {
+	//Fill the time vector from the buffer
 	for (int i = buffLength;i< fftSize; i++) {
 		fftTimeData[i - buffLength] = fftTimeData[i];
 	}
 	for (int j = 0;j< buffLength; j++) {
 		fftTimeData[fftSize - buffLength + j] = newBuff[j];
 	}
-	memcpy(fftFreqData, fftTimeData, sizeof(fftTimeData));
 
+	memcpy(fftFreqData, fftTimeData, sizeof(fftTimeData));
+	//Window the signal
+	for (int i = 0; i < sizeof(fftTimeData); i++) {
+		fftFreqData[i] = fftFreqData[i] * fftWindow[i];
+	}
+
+}
+
+float FeedbackCutAudioProcessor::findPeakFrequency(float* fftFreqData, int peakLocation, int fs, int N) {
+	//Calculate the peak frequency using quadratic interpolation
+	float a = 20 * log(fftFreqData[peakLocation - 1]);
+	float b = 20 * log(fftFreqData[peakLocation]);
+	float c = 20 * log(fftFreqData[peakLocation +1]);
+	float p = 0.5 *(a - c) / (a - 2 * b + c);
+	float k = (float)peakLocation + p;
+	return k* fs/N;
 }
 
 void FeedbackCutAudioProcessor::protectSection(float* channelData, AudioSampleBuffer& buffer)
 {
-	const ScopedLock lock(cs);
+	//Trying to mutex the fft operation so the graphics don't skip
+	//const ScopedLock lock(cs);
+	cs.enter();
 	pushBufferIntoFifo(channelData, buffer.getNumSamples());
 	fftInputAudio.performFrequencyOnlyForwardTransform(fftFreqData);
+	cs.exit();
 }
 
 bool FeedbackCutAudioProcessor::check(std::vector<int> peakLocations, int n)
 {
+	//Check if all of the last peaks occur at the same locations
 	for (int i = 0; i < n - 1; i++)
 	{
 		if (peakLocations[i] != peakLocations[i + 1])
@@ -321,13 +303,6 @@ bool FeedbackCutAudioProcessor::check(std::vector<int> peakLocations, int n)
 }
 
 
-
-/*void checkFB()
-{
-	if (fftFillCounter == numBufInFFT) {
-
-	}
-}*/
 
 //==============================================================================
 bool FeedbackCutAudioProcessor::hasEditor() const

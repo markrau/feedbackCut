@@ -110,10 +110,6 @@ void FeedbackCutAudioProcessorEditor::paint(Graphics& g)
 	g.setFont(Font("Tekton Pro", 88.00f, Font::plain));
 
 
-
-
-
-
 	if (processor.filterBuffCount > 0) {
 		g.setColour(Colours::darkred);
 	}
@@ -123,7 +119,7 @@ void FeedbackCutAudioProcessorEditor::paint(Graphics& g)
 
 
 	g.setFont(h / 12);
-	g.drawFittedText("FeedBackCut", (int)(0.015*w), (int)(0.015*h), (int)(0.4*w), (int)(0.1*h), Justification::topLeft, 1);
+	g.drawFittedText("FeedBackCut", (int)(0.06*w), (int)(0.015*h), (int)(0.4*w), (int)(0.1*h), Justification::topLeft, 1);
 
 	g.setColour(Colours::black);
 	g.setFont(18.0f);
@@ -141,7 +137,6 @@ void FeedbackCutAudioProcessorEditor::paint(Graphics& g)
 	Rectangle<float> spectOutline((float)w*0.05, (float)h*0.12, (float)w*0.9, (float)h*0.5);
 
 	g.setColour(Colour::Colour(108,77,108));
-	//g.drawRect((float)w*0.05, (float)h*0.1, (float)w*0.9, (float)h*0.4);
 	g.drawRect(spect);
 	g.fillRect(spect);
 	g.setColour(Colours::black);
@@ -157,30 +152,47 @@ void FeedbackCutAudioProcessorEditor::paint(Graphics& g)
 	float xTickPosition = w*0.91*(0.05 + ( log10(fTick) / freqNormalize -minFreqRatio) / stretchNormalize);
 	g.drawLine(xTickPosition, h*0.605, xTickPosition, h*0.62, 4);
 	g.drawFittedText("50", (int)xTickPosition-0.02*w, (int)h*0.62, (int)(0.05*w), (int)(0.05*h), Justification::centred, 2);
+	fTick = 20;
+	xTickPosition = w*0.9*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
+	g.drawFittedText("20", (int)xTickPosition - 0.02*w, (int)h*0.62, (int)(0.05*w), (int)(0.05*h), Justification::centred, 2);
 	fTick = 100;
-	xTickPosition = w*0.91*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
+	xTickPosition = w*0.9*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
 	g.drawFittedText("100", (int)xTickPosition - 0.02*w, (int)h*0.62, (int)(0.05*w), (int)(0.05*h), Justification::centred, 2);
 	g.drawLine(xTickPosition, h*0.605, xTickPosition, h*0.62, 4);
 	fTick = 400;
-	xTickPosition = w*0.91*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
+	xTickPosition = w*0.9*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
 	g.drawFittedText("400", (int)xTickPosition - 0.02*w, (int)h*0.62, (int)(0.05*w), (int)(0.05*h), Justification::centred, 2);
 	g.drawLine(xTickPosition, h*0.605, xTickPosition, h*0.62, 4);
 	fTick = 1000;
-	xTickPosition = w*0.91*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
-	g.drawFittedText("1000", (int)xTickPosition - 0.02*w, (int)h*0.62, (int)(0.05*w), (int)(0.05*h), Justification::centred, 2);
+	xTickPosition = w*0.9*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
+	g.drawFittedText("1k", (int)xTickPosition - 0.02*w, (int)h*0.62, (int)(0.05*w), (int)(0.05*h), Justification::centred, 2);
 	g.drawLine(xTickPosition, h*0.605, xTickPosition, h*0.62, 4);
 	fTick = 4000;
-	xTickPosition = w*0.91*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
-	g.drawFittedText("4000", (int)xTickPosition - 0.02*w, (int)h*0.62, (int)(0.05*w), (int)(0.05*h), Justification::centred, 2);
+	xTickPosition = w*0.9*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
+	g.drawFittedText("4k", (int)xTickPosition - 0.02*w, (int)h*0.62, (int)(0.05*w), (int)(0.05*h), Justification::centred, 2);
 	g.drawLine(xTickPosition, h*0.605, xTickPosition, h*0.62, 4);
 	fTick = 10000;
-	xTickPosition = w*0.91*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
-	g.drawFittedText("10000", (int)xTickPosition - 0.02*w, (int)h*0.62, (int)(0.05*w), (int)(0.05*h), Justification::centred, 2);
+	xTickPosition = w*0.9*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
+	g.drawFittedText("10k", (int)xTickPosition - 0.02*w, (int)h*0.62, (int)(0.05*w), (int)(0.05*h), Justification::centred, 2);
 	g.drawLine(xTickPosition, h*0.605, xTickPosition, h*0.62, 4);
-	
+	fTick = 20000;
+	xTickPosition = w*0.9*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
+	g.drawFittedText("20k", (int)xTickPosition - 0.02*w, (int)h*0.62, (int)(0.05*w), (int)(0.05*h), Justification::centred, 2);
 
 
 
+	//Draw dB ticks
+	//float xTickPosition = w*0.91*(0.05 + (log10(fTick) / freqNormalize - minFreqRatio) / stretchNormalize);
+	g.drawFittedText("-100", (int)0, (int)h*0.6, (int)(0.05*w), (int)(0.05*h), Justification::centredTop, 2);
+	g.drawLine(0.05*w,0.52*h ,0.06*w, h*0.52, 4);
+	g.drawFittedText("-80", (int)0, (int)h*0.5, (int)(0.05*w), (int)(0.05*h), Justification::centredTop, 2);
+	g.drawLine(0.05*w, 0.42*h, 0.06*w, h*0.42, 4);
+	g.drawFittedText("-60", (int)0, (int)h*0.4, (int)(0.05*w), (int)(0.05*h), Justification::centredTop, 2);
+	g.drawLine(0.05*w, 0.32*h, 0.06*w, h*0.32, 4);
+	g.drawFittedText("-40", (int)0, (int)h*0.3, (int)(0.05*w), (int)(0.05*h), Justification::centredTop, 2);
+	g.drawLine(0.05*w, 0.22*h, 0.06*w, h*0.22, 4);
+	g.drawFittedText("-20", (int)0, (int)h*0.2, (int)(0.05*w), (int)(0.05*h), Justification::centredTop, 2);
+	g.drawFittedText("0", (int)0, (int)h*0.105, (int)(0.05*w), (int)(0.05*h), Justification::centred, 2);
 
 
 
@@ -190,24 +202,19 @@ void FeedbackCutAudioProcessorEditor::paint(Graphics& g)
 	if (!processor.takingFFT) {
 		g.strokePath(spectroscope,	stroke, AffineTransform::verticalFlip(getHeight()));
 	}
-	
-	
 
 }
 
 void FeedbackCutAudioProcessorEditor::timerCallback()
 {
-	//if (nextFFTBlockReady)
-	//{
+
 	const float w = (float)getWidth();
 	const float h = (float)getHeight();
 	const float maxFreqRatio = 0.25; // set the highest frequency displayed by the spectroscope (1 = nyquist)
 
-	//fftFreqData = log
-	//if (!processor.takingFFT) {
 
 	int maxIndex = (int)processor.fftNyquist * 20000 / (processor.getSampleRate() / 2);
-	int minIndex = (int)roundf(processor.fftNyquist * 20 / (processor.getSampleRate() / 2));
+	int minIndex = (int)(processor.fftNyquist * 20 / (processor.getSampleRate() / 2));
 	float offset =0;
 
 	for (int j = 1; j < minIndex + 1; j++) {
@@ -220,32 +227,24 @@ void FeedbackCutAudioProcessorEditor::timerCallback()
 		if (yVal < -3.0f) {
 			yVal = -3.0f;
 		}
-		spectroscope.startNewSubPath(0.89*log10((float)minIndex)*w / (log10((float)maxIndex)) + 0.055*w - offset, h*(0.69 + 0.1*yVal));
+		spectroscope.startNewSubPath(  0.055*w , h*(0.69 + 0.1*yVal));
 		
-	
-		int numPaths = 400;
-		for (int i = minIndex+1; i < numPaths; i++) {
-			//const int fftDataIndex = (int)i*maxFreqRatio;
-			const int fftDataIndex = (int)(pow(10,(float)i*((float)log10((float)maxIndex)/numPaths)));
-			const float x = 0.89*log10((float)fftDataIndex)*w / (log10((float)maxIndex));
+		for (int i = minIndex+2; i < maxIndex; i=(int)(i+log((float)i))) {
+			const int fftDataIndex = i-1;
+			const float x = 0.9*log10((float)fftDataIndex)*w / (log10((float)maxIndex));
 			yVal = log10(abs(processor.fftFreqData[fftDataIndex]));
 			if (yVal < -3.0f) {
 				yVal = -3.0f;
 			}
-
-
-			spectroscope.lineTo(x + 0.055*w, h*(0.69 + 0.1*yVal));
+			spectroscope.lineTo(x + 0.045*w , h*(0.68 + 0.1*yVal));
 		}
 		repaint();
-
 }
 
 void FeedbackCutAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-
-
 
 	filterSpeedSliderLabel.setEditable(true);
 	filterSeveritySliderLabel.setEditable(true);
@@ -257,18 +256,11 @@ void FeedbackCutAudioProcessorEditor::resized()
 	filterQSliderLabel.setFont(Font("Tekton Pro", 17.0f, Font::plain));
 	feedbackThresholdLabel.setFont(Font("Tekton Pro", 17.0f, Font::plain));
 
-
-
-
-
-
-
 	filterSpeedSlider.setBoundsRelative(0.035, 0.7, 0.18, 0.18);
 	filterSeveritySlider.setBoundsRelative(0.285, 0.7, 0.18, 0.18);
 	filterQSlider.setBoundsRelative(0.535, 0.7, 0.18, 0.18);
 	feedbackThreshold.setBoundsRelative(0.785, 0.7, 0.18, 0.18);
 	bypass.setBoundsRelative(0.87, 0.03, 0.1, 0.05);
-	//bypass.setCentreRelative(0.9,0.05);
 
 
 	filterSpeedSliderLabel.setBoundsRelative(0.072, 0.835, 0.2, 0.1);
@@ -291,9 +283,7 @@ void FeedbackCutAudioProcessorEditor::sliderValueChanged(Slider* slider)
 
 		processor.maxFilterBuffCount =  (int) (filterSpeedSlider.getValue()*((float)processor.getSampleRate() / (float)processor.getBlockSize()));
 
-		//for (int i = 0; i < sizeof(processor.EQs); i++) {
-		//	processor.EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Q_-_Filter_Bandwidth", 180);
-		//}
+
 
 	}
 	if (&filterSeveritySlider == slider) {
@@ -303,10 +293,6 @@ void FeedbackCutAudioProcessorEditor::sliderValueChanged(Slider* slider)
 
 		processor.maxFilterReduction = filterSeveritySlider.getValue();
 
-		//for (int i = 0; i < sizeof(processor.EQs); i++) {
-			
-			//processor.EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Level", filterSeveritySlider.getValue());
-		//}
 
 	}
 	if (&filterQSlider == slider) {

@@ -41,7 +41,6 @@ cs()
 
 FeedbackCutAudioProcessor::~FeedbackCutAudioProcessor()
 {
-
 }
 
 //==============================================================================

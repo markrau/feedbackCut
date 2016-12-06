@@ -12,7 +12,7 @@
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="4.3.0">
   <MAINGROUP id="wPgbEL" name="feedbackCut">
     <GROUP id="{F97A481C-D153-9651-62BD-F506BD56F8E4}" name="Source">
-      <FILE id="VFzsNN" name="peakEQ.h" compile="0" resource="0" file="Source/peakEQ.h"/>
+      <FILE id="zVYeZn" name="peakEQ.h" compile="0" resource="0" file="Source/peakEQ.h"/>
       <FILE id="jA1Ewd" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="ZjJvNx" name="PluginProcessor.h" compile="0" resource="0"

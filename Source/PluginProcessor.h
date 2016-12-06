@@ -104,6 +104,12 @@ public:
 	bool takingFFT;
 	bool bypassTrue;
 
+	// plugin parameters
+	AudioParameterFloat* speedParam;
+	AudioParameterFloat* filterReductionParam;
+	AudioParameterFloat* filterBandwidthParam;
+	AudioParameterFloat* thresholdParam;
+
 
 private:
     //==============================================================================

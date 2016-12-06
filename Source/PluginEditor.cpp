@@ -283,7 +283,7 @@ void FeedbackCutAudioProcessorEditor::sliderValueChanged(Slider* slider)
 
 		processor.maxFilterBuffCount =  (int) (filterSpeedSlider.getValue()*((float)processor.getSampleRate() / (float)processor.getBlockSize()));
 
-
+		*processor.speedParam = filterSpeedSlider.getValue();
 
 	}
 	if (&filterSeveritySlider == slider) {
@@ -292,6 +292,8 @@ void FeedbackCutAudioProcessorEditor::sliderValueChanged(Slider* slider)
 
 
 		processor.maxFilterReduction = filterSeveritySlider.getValue();
+
+		*processor.filterReductionParam = filterSeveritySlider.getValue()/40.0f+ 1.0f;
 
 
 	}
@@ -302,10 +304,14 @@ void FeedbackCutAudioProcessorEditor::sliderValueChanged(Slider* slider)
 			processor.EQcontrols[i].setParamValue("/PeakEqualizer/Peak_EQ/Q_-_Filter_Bandwidth", filterQSlider.getValue());
 		}
 
+		*processor.filterBandwidthParam = filterQSlider.getValue()/50.0f;
+
 	}
 	if (&feedbackThreshold == slider) {
 		feedbackThresholdLabel.setText(String(feedbackThreshold.getValue()), sendNotification);
 		processor.energyThreshold = feedbackThreshold.getValue();
+
+		*processor.thresholdParam = feedbackThreshold.getValue();
 	}
 }
 void FeedbackCutAudioProcessorEditor::labelTextChanged(Label* label)

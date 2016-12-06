@@ -35,12 +35,35 @@ cs()
                        )
 #endif
 {
+	//Make plugin parameters
+	addParameter(speedParam = new AudioParameterFloat("Filter Speed", // parameterID
+		"Gain", // parameter name
+		NormalisableRange<float>(0.0f, 1.0f),   // range
+		0.5f)); // default value
+	addParameter(filterReductionParam = new AudioParameterFloat("dB Reduction", // parameterID
+		"Reduction", // parameter name
+		NormalisableRange<float>(0.0f, 1.0f),   // range
+		0.5f)); // default value
+	addParameter(filterBandwidthParam = new AudioParameterFloat("Bandwidth", // parameterID
+		"Bandwidth", // parameter name
+		NormalisableRange<float>(0.0f, 1.0f),   // range
+		0.5f)); // default value
+	addParameter(thresholdParam = new AudioParameterFloat("Threshold", // parameterID
+		"Threshold", // parameter name
+		NormalisableRange<float>(0.0f, 1.0f),   // range
+		0.5f)); // default value
+
+
+	// Make the Faust objects
 		EQs = new peakEQ[5];
 		EQcontrols = new MapUI[5];
 }
 
 FeedbackCutAudioProcessor::~FeedbackCutAudioProcessor()
 {
+	//delete EQs;
+	//delete EQcontrols;
+
 }
 
 //==============================================================================
@@ -320,12 +343,20 @@ void FeedbackCutAudioProcessor::getStateInformation (MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+	MemoryOutputStream(destData, true).writeFloat(*filterBandwidthParam);
+	MemoryOutputStream(destData, true).writeFloat(*filterReductionParam);
+	MemoryOutputStream(destData, true).writeFloat(*speedParam);
+	MemoryOutputStream(destData, true).writeFloat(*thresholdParam);
 }
 
 void FeedbackCutAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+	*filterBandwidthParam = MemoryInputStream(data, static_cast<size_t> (sizeInBytes), false).readFloat();
+	*filterReductionParam = MemoryInputStream(data, static_cast<size_t> (sizeInBytes), false).readFloat();
+	*speedParam = MemoryInputStream(data, static_cast<size_t> (sizeInBytes), false).readFloat();
+	*thresholdParam = MemoryInputStream(data, static_cast<size_t> (sizeInBytes), false).readFloat();
 }
 
 

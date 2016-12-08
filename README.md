@@ -14,6 +14,11 @@ An audio plugin which aims to detect acoustic feedback and cancel it with the us
 # Implementation and Feedback Detection
 The feedback detection is adapted from a method proposed by Rocha and Ferreira [1]. A rolling buffer of size 2048 is used for the frequency analysis and feedback detection. This buffer has the new buffer given by the DAW pushed in at every audio call. Two methods are used to determine if the peak frequency bin is feedback. The first method compares the ratio between the power of the entire spectrum to the energy of the highest peak and it's two neighbors on either side using the following relationship:
 
+    <math>
+      <msqrt>
+        <mn>2</mn>
+      </msqrt>
+    </math>
 
 
 [1] A. Rocha, A. Ferreira, "An Accurate Method of Detection and Cancellation of Multiple Acoustic Feedbacks", Audio Engineering Society, Convention 118, 2005.

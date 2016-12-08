@@ -13,7 +13,7 @@ An audio plugin which aims to detect acoustic feedback and cancel it with the us
 
 Additionally, there is a bypass toggle button, and the name "feedbackCut" will flash red when feedback is detected. An image of the plugin can be seen below.
 
-<center><h3>Normal View Mode</h3></center> 
+
 <img src="plugin.png" alt="Normal View Mode" style="max-width:100%;">
 </img>
 

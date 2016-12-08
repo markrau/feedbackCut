@@ -14,25 +14,34 @@ An audio plugin which aims to detect acoustic feedback and cancel it with the us
 # Implementation and Feedback Detection
 The feedback detection is adapted from a method proposed by Rocha and Ferreira [1]. A rolling buffer of size 2048 is used for the frequency analysis and feedback detection. This buffer has the new buffer given by the DAW pushed in at every audio call. Two methods are used to determine if the peak frequency bin is feedback. The first method compares the ratio between the power of the entire spectrum to the energy of the highest peak and it's two neighbors on either side using the following relationship:
 
-<html>
 <head>
- <title>MathML in HTML5</title>
+...
+<script type="text/javascript" src="LaTeXMathML.js"></script>
+<link rel="stylesheet" type="text/css" href="LaTeXMathML.standardarticle.css" /> 
+...
 </head>
+
 <body>
+...
 
-  <h1>MathML in HTML5</h1>
+<div class="LaTeX">
+\documentclass[12pt]{article}
 
-  <p>
-    Square root of two:
-    <math>
-      <msqrt>
-        <mn>2</mn>
-      </msqrt>
-    </math>
-  </p>
+\begin{document}
 
-</body>
-</html>
+\title{LaTeXML Example}
+\maketitle
+
+\begin{abstract}
+This is a sample LaTeXML document.
+\end{abstract}
+
+\section{First Section}
+
+  $$ \sum_{n=1}^{+\infty} \frac{1}{n^2} = \frac{\pi^2}{6} $$
+
+\end{document}
+</div>
 
 [1] A. Rocha, A. Ferreira, "An Accurate Method of Detection and Cancellation of Multiple Acoustic Feedbacks", Audio Engineering Society, Convention 118, 2005.
 

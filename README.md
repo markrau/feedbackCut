@@ -11,37 +11,15 @@ An audio plugin which aims to detect acoustic feedback and cancel it with the us
 
 -Threshold: Sets a threshold value between feedback and harmonic sound. If the value is lower it will be more sensitive, and more likely to catch all instances of feedback, but also more likely to misclasify a musical sound as feedback. Values around 0.6 seem to be pretty good for classifying between feedback and musical signals. 
 
+Additionally, there is a bypass toggle button, and the name "feedbackCut" will flash red when feedback is detected. 
+
 # Implementation and Feedback Detection
 The feedback detection is adapted from a method proposed by Rocha and Ferreira [1]. A rolling buffer of size 2048 is used for the frequency analysis and feedback detection. This buffer has the new buffer given by the DAW pushed in at every audio call. Two methods are used to determine if the peak frequency bin is feedback. The first method compares the ratio between the power of the entire spectrum to the energy of the highest peak and it's two neighbors on either side using the following relationship:
 
-<head>
-...
-<script type="text/javascript" src="LaTeXMathML.js"></script>
-<link rel="stylesheet" type="text/css" href="LaTeXMathML.standardarticle.css" /> 
-...
-</head>
+   <center><h3>Normal View Mode</h3></center>
+   
+    <img src="plugin.png" alt="Normal View Mode" style="max-width:100%;">
 
-<body>
-...
-
-<div class="LaTeX">
-\documentclass[12pt]{article}
-
-\begin{document}
-
-\title{LaTeXML Example}
-\maketitle
-
-\begin{abstract}
-This is a sample LaTeXML document.
-\end{abstract}
-
-\section{First Section}
-
-  $$ \sum_{n=1}^{+\infty} \frac{1}{n^2} = \frac{\pi^2}{6} $$
-
-\end{document}
-</div>
 
 [1] A. Rocha, A. Ferreira, "An Accurate Method of Detection and Cancellation of Multiple Acoustic Feedbacks", Audio Engineering Society, Convention 118, 2005.
 

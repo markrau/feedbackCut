@@ -20,6 +20,8 @@ The feedback detection is adapted from a method proposed by Rocha and Ferreira [
    
     <img src="plugin.png" alt="Normal View Mode" style="max-width:100%;">
     
+    </img>
+    
 
 
 [1] A. Rocha, A. Ferreira, "An Accurate Method of Detection and Cancellation of Multiple Acoustic Feedbacks", Audio Engineering Society, Convention 118, 2005.

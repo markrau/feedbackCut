@@ -16,11 +16,9 @@ Additionally, there is a bypass toggle button, and the name "feedbackCut" will f
 # Implementation and Feedback Detection
 The feedback detection is adapted from a method proposed by Rocha and Ferreira [1]. A rolling buffer of size 2048 is used for the frequency analysis and feedback detection. This buffer has the new buffer given by the DAW pushed in at every audio call. Two methods are used to determine if the peak frequency bin is feedback. The first method compares the ratio between the power of the entire spectrum to the energy of the highest peak and it's two neighbors on either side using the following relationship:
 
-   <center><h3>Normal View Mode</h3></center>
-   
-    <img src="plugin.png" alt="Normal View Mode" style="max-width:100%;">
-    
-    </img>
+<center><h3>Normal View Mode</h3></center> 
+<img src="plugin.png" alt="Normal View Mode" style="max-width:100%;">
+</img>
     
 
 

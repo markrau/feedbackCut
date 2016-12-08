@@ -2,9 +2,13 @@
 
 # Short Description
 An audio plugin which aims to detect acoustic feedback and cancel it with the use of an adaptive filter. The plugin is mean't to be used in a live sound setting, and will cancel feedback in a musical way by only applying the correction when it is needed, not at all times. There are four user controlled parameters to control the plugin, they are: 
+
 -Speed: determines how fast the filter is applied once a feedback is detected. The reduction in dB is applied incrementally over a certain number of buffers which is proportional to the speed.
+
 -Reduction: sets the maximum gain (reduction) in dB of the filter that is applied.
+
 -Bandwidth: sets the bandwidth of a parametric equalizer which is used to reduce the feedback.
+
 -Threshold: Sets a threshold value between feedback and harmonic sound. If the value is lower it will be more sensitive, and more likely to catch all instances of feedback, but also more likely to misclasify a musical sound as feedback. Values around 0.6 seem to be pretty good for classifying between feedback and musical signals. 
 
 # Implementation and Feedback Detection

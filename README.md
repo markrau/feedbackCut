@@ -1,6 +1,6 @@
 # feedbackCut
 
-# Short Description
+# Description
 An audio plugin which aims to detect acoustic feedback and cancel it with the use of an adaptive filter. The plugin is mean't to be used in a live sound setting, and will cancel feedback in a musical way by only applying the correction when it is needed, not at all times. There are four user controlled parameters to control the plugin, they are: 
 
 -Speed: determines how fast the filter is applied once a feedback is detected. The reduction in dB is applied incrementally over a certain number of buffers which is proportional to the speed.

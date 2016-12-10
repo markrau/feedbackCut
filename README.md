@@ -27,7 +27,7 @@ If both of these conditons are met, the plugin will determine that there is an i
 [1] A. Rocha, A. Ferreira, "An Accurate Method of Detection and Cancellation of Multiple Acoustic Feedbacks", Audio Engineering Society, Convention 118, 2005.
 
 # Build Instructions 
-Using the Projucer, build the project like a standard JUCE audio plugin. You will have to make sure that the project is properly linked to the JUCE modules and the VST SDK if you wish to build a VST plug-in. More information about JUCE can be found here https://www.juce.com/.
+Using the Projucer, build the project like a standard JUCE audio plugin. You will have to make sure that the project is properly linked to the JUCE modules and the VST SDK if you wish to build a VST plug-in. More information about JUCE can be found at https://www.juce.com/.
 
 # Documentation
-The image "plannedGUI_draft1" shows a first draft of the user interface. The green curve shows the frequency spectrum and the red curve is the filter response. The orange circle by the notch filter can be pressed to keep the filter, otherwise it will adapt back to a flat response.
+The source code is split between five files. The pluginProcessor files deal with the audio processing, the pluginEditor files deal with the GUI editor, and peakEQ.h is a c++ wrapper around a Faust audio object.
